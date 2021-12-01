@@ -2,7 +2,7 @@ package goshared
 
 const durationcmpTpl = `{{ $f := .Field }}{{ $r := .Rules }}
 			{{  if $r.Const }}
-				if dur != {{ durLit $r.Const }} {
+				if m.hasPaths(paths, "{{ $f.Name }}") && dur != {{ durLit $r.Const }} {
 					err := {{ err . "value must equal " (durStr $r.Const) }}
 					if !all { return err }
 					errors = append(errors, err)
@@ -18,13 +18,13 @@ const durationcmpTpl = `{{ $f := .Field }}{{ $r := .Rules }}
 			{{ if $r.Lt }}
 				{{ if $r.Gt }}
 					{{  if durGt $r.GetLt $r.GetGt }}
-						if dur <= gt || dur >= lt {
+						if m.hasPaths(paths, "{{ $f.Name }}") && (dur <= gt || dur >= lt) {
 							err := {{ err . "value must be inside range (" (durStr $r.GetGt) ", " (durStr $r.GetLt) ")" }}
 							if !all { return err }
 							errors = append(errors, err)
 						}
 					{{ else }}
-						if dur >= lt && dur <= gt {
+						if m.hasPaths(paths, "{{ $f.Name }}") && dur >= lt && dur <= gt {
 							err := {{ err . "value must be outside range [" (durStr $r.GetLt) ", " (durStr $r.GetGt) "]" }}
 							if !all { return err }
 							errors = append(errors, err)
@@ -32,20 +32,20 @@ const durationcmpTpl = `{{ $f := .Field }}{{ $r := .Rules }}
 					{{ end }}
 				{{ else if $r.Gte }}
 					{{  if durGt $r.GetLt $r.GetGte }}
-						if dur < gte || dur >= lt {
+						if m.hasPaths(paths, "{{ $f.Name }}") && (dur < gte || dur >= lt) {
 							err := {{ err . "value must be inside range [" (durStr $r.GetGte) ", " (durStr $r.GetLt) ")" }}
 							if !all { return err }
 							errors = append(errors, err)
 						}
 					{{ else }}
-						if dur >= lt && dur < gte {
+						if m.hasPaths(paths, "{{ $f.Name }}") && dur >= lt && dur < gte {
 							err := {{ err . "value must be outside range [" (durStr $r.GetLt) ", " (durStr $r.GetGte) ")" }}
 							if !all { return err }
 							errors = append(errors, err)
 						}
 					{{ end }}
 				{{ else }}
-					if dur >= lt {
+					if m.hasPaths(paths, "{{ $f.Name }}") && dur >= lt {
 						err := {{ err . "value must be less than " (durStr $r.GetLt) }}
 						if !all { return err }
 						errors = append(errors, err)
@@ -54,13 +54,13 @@ const durationcmpTpl = `{{ $f := .Field }}{{ $r := .Rules }}
 			{{ else if $r.Lte }}
 				{{ if $r.Gt }}
 					{{  if durGt $r.GetLte $r.GetGt }}
-						if dur <= gt || dur > lte {
+						if m.hasPaths(paths, "{{ $f.Name }}") && (dur <= gt || dur > lte) {
 							err := {{ err . "value must be inside range (" (durStr $r.GetGt) ", " (durStr $r.GetLte) "]" }}
 							if !all { return err }
 							errors = append(errors, err)
 						}
 					{{ else }}
-						if dur > lte && dur <= gt {
+						if m.hasPaths(paths, "{{ $f.Name }}") && dur > lte && dur <= gt {
 							err := {{ err . "value must be outside range (" (durStr $r.GetLte) ", " (durStr $r.GetGt) "]" }}
 							if !all { return err }
 							errors = append(errors, err)
@@ -68,33 +68,33 @@ const durationcmpTpl = `{{ $f := .Field }}{{ $r := .Rules }}
 					{{ end }}
 				{{ else if $r.Gte }}
 					{{ if durGt $r.GetLte $r.GetGte }}
-						if dur < gte || dur > lte {
+						if m.hasPaths(paths, "{{ $f.Name }}") && (dur < gte || dur > lte) {
 							err := {{ err . "value must be inside range [" (durStr $r.GetGte) ", " (durStr $r.GetLte) "]" }}
 							if !all { return err }
 							errors = append(errors, err)
 						}
 					{{ else }}
-						if dur > lte && dur < gte {
+						if m.hasPaths(paths, "{{ $f.Name }}") && dur > lte && dur < gte {
 							err := {{ err . "value must be outside range (" (durStr $r.GetLte) ", " (durStr $r.GetGte) ")" }}
 							if !all { return err }
 							errors = append(errors, err)
 						}
 					{{ end }}
 				{{ else }}
-					if dur > lte {
+					if m.hasPaths(paths, "{{ $f.Name }}") && dur > lte {
 						err := {{ err . "value must be less than or equal to " (durStr $r.GetLte) }}
 						if !all { return err }
 						errors = append(errors, err)
 					}
 				{{ end }}
 			{{ else if $r.Gt }}
-				if dur <= gt {
+				if m.hasPaths(paths, "{{ $f.Name }}") && dur <= gt {
 					err := {{ err . "value must be greater than " (durStr $r.GetGt) }}
 					if !all { return err }
 					errors = append(errors, err)
 				}
 			{{ else if $r.Gte }}
-				if dur < gte {
+				if m.hasPaths(paths, "{{ $f.Name }}") && dur < gte {
 					err := {{ err . "value must be greater than or equal to " (durStr $r.GetGte) }}
 					if !all { return err }
 					errors = append(errors, err)
@@ -103,13 +103,13 @@ const durationcmpTpl = `{{ $f := .Field }}{{ $r := .Rules }}
 
 
 			{{ if $r.In }}
-				if _, ok := {{ lookup $f "InLookup" }}[dur]; !ok {
+				if _, ok := {{ lookup $f "InLookup" }}[dur]; m.hasPaths(paths, "{{ $f.Name }}") && !ok {
 					err := {{ err . "value must be in list " $r.In }}
 					if !all { return err }
 					errors = append(errors, err)
 				}
 			{{ else if $r.NotIn }}
-				if _, ok := {{ lookup $f "NotInLookup" }}[dur]; ok {
+				if _, ok := {{ lookup $f "NotInLookup" }}[dur]; m.hasPaths(paths, "{{ $f.Name }}") && ok {
 					err := {{ err . "value must not be in list " $r.NotIn }}
 					if !all { return err }
 					errors = append(errors, err)

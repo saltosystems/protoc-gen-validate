@@ -7,8 +7,10 @@ import (
 	"os"
 
 	_ "github.com/saltosystems/protoc-gen-validate/tests/harness/cases/go"
+	cases "github.com/saltosystems/protoc-gen-validate/tests/harness/cases/go"
 	_ "github.com/saltosystems/protoc-gen-validate/tests/harness/cases/other_package/go"
 	_ "github.com/saltosystems/protoc-gen-validate/tests/harness/cases/yet_another_package/go"
+	harness "github.com/saltosystems/protoc-gen-validate/tests/harness/go"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -32,24 +34,44 @@ func main() {
 		ValidateAll() error
 	})
 
-	var multierr error
+	vMsgWithPaths, hasValidateWithPaths := msg.(interface {
+		ValidateWithPaths([]string) error
+	})
+
+	vAllMsgWithPaths, hasValidateAllWithPaths := msg.(interface {
+		ValidateAllWithPaths([]string) error
+	})
+
+	var multierr, errWithPaths, multierrWithPaths error
 	if isIgnored {
 		// confirm that ignored messages don't have a validate method
-		if hasValidate {
+		switch {
+		case hasValidate:
 			checkErr(fmt.Errorf("ignored message %T has Validate() method", msg))
-		}
-		if hasValidateAll {
+		case hasValidateAll:
 			checkErr(fmt.Errorf("ignored message %T has ValidateAll() method", msg))
+		case hasValidateWithPaths:
+			checkErr(fmt.Errorf("ignored message %T has ValidateWithPaths() method", msg))
+		case hasValidateAllWithPaths:
+			checkErr(fmt.Errorf("ignored message %T has ValidateAllWithPaths() method", msg))
 		}
-	} else if !hasValidate {
-		checkErr(fmt.Errorf("non-ignored message %T is missing Validate()", msg))
-	} else if !hasValidateAll {
-		checkErr(fmt.Errorf("non-ignored message %T is missing ValidateAll()", msg))
 	} else {
+		switch {
+		case !hasValidate:
+			checkErr(fmt.Errorf("non-ignored message %T is missing Validate()", msg))
+		case !hasValidateAll:
+			checkErr(fmt.Errorf("non-ignored message %T is missing ValidateAll()", msg))
+		case !hasValidateWithPaths:
+			checkErr(fmt.Errorf("non-ignored message %T is missing ValidateWithPaths()", msg))
+		case !hasValidateAllWithPaths:
+			checkErr(fmt.Errorf("non-ignored message %T is missing ValidateAllWithPaths()", msg))
+		}
 		err = vMsg.Validate()
 		multierr = vAllMsg.ValidateAll()
+		errWithPaths = vMsgWithPaths.ValidateWithPaths(tc.Paths)
+		multierrWithPaths = vAllMsgWithPaths.ValidateAllWithPaths(tc.Paths)
 	}
-	checkValid(err, multierr)
+	checkValid(err, multierr, errWithPaths, multierrWithPaths)
 }
 
 type hasAllErrors interface{ AllErrors() []error }

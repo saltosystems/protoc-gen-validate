@@ -28,7 +28,7 @@ func execTestCase(tc TestCase, harnesses []Harness, out chan<- TestResult) {
 		return
 	}
 
-	b, err := proto.Marshal(&harness.TestCase{Message: any})
+	b, err := proto.Marshal(&harness.TestCase{Message: any, Paths: tc.Paths})
 	if err != nil {
 		log.Printf("unable to marshal test case %q - %v", tc.Name, err)
 		out <- TestResult{false, false}
