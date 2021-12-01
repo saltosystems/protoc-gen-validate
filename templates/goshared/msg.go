@@ -8,7 +8,7 @@ const msgTpl = `
 	{{ cmt "Validate checks the field values on " (msgTyp .) " with the rules defined in the proto definition for this message. If any rules are violated, the first error encountered is returned, or nil if there are no violations." }}
 {{- end -}}
 func (m {{ (msgTyp .).Pointer }}) Validate() error {
-	return m.validate(false)
+	return m.validate(false, nil)
 }
 
 {{ if disabled . -}}
@@ -17,11 +17,29 @@ func (m {{ (msgTyp .).Pointer }}) Validate() error {
 	{{ cmt "ValidateAll checks the field values on " (msgTyp .) " with the rules defined in the proto definition for this message. If any rules are violated, the result is a list of violation errors wrapped in " (multierrname .) ", or nil if none found." }}
 {{- end -}}
 func (m {{ (msgTyp .).Pointer }}) ValidateAll() error {
-	return m.validate(true)
+	return m.validate(true, nil)
+}
+
+{{ if disabled . -}}
+	{{ cmt "ValidateWithPaths is disabled for " (msgTyp .) ". This method will always return nil." }}
+{{- else -}}
+	{{ cmt "ValidateWithPaths checks the field values that comes in paths parameter on " (msgTyp .) " with the rules defined in the proto definition for this message. If any rules are violated, the result is a list of violation errors wrapped in " (multierrname .) ", or nil if none found." }}
+{{- end -}}
+func (m {{ (msgTyp .).Pointer }}) ValidateWithPaths(paths []string) error {
+	return m.validate(false, paths)
+}
+
+{{ if disabled . -}}
+	{{ cmt "ValidateAllWithPaths is disabled for " (msgTyp .) ". This method will always return nil." }}
+{{- else -}}
+	{{ cmt "ValidateAllWithPaths checks the field values that comes in paths parameter on " (msgTyp .) " with the rules defined in the proto definition for this message. If any rules are violated, the result is a list of violation errors wrapped in " (multierrname .) ", or nil if none found." }}
+{{- end -}}
+func (m {{ (msgTyp .).Pointer }}) ValidateAllWithPaths(paths []string) error {
+	return m.validate(true, paths)
 }
 
 {{/* Unexported function to handle validation. If the need arises to add more exported functions, please consider the functional option approach outlined in protoc-gen-validate#47. */}}
-func (m {{ (msgTyp .).Pointer }}) validate(all bool) error {
+func (m {{ (msgTyp .).Pointer }}) validate(all bool, paths []string) error {
 	{{ if disabled . -}}
 		return nil
 	{{ else -}}
@@ -41,12 +59,14 @@ func (m {{ (msgTyp .).Pointer }}) validate(all bool) error {
 				{{ end }}
 				{{ if required . }}
 					default:
-						err := {{ errname .Message }}{
-							field: "{{ name . }}",
-							reason: "value is required",
+						if m.hasPaths(paths, "{{ name . }}") {
+							err := {{ errname .Message }}{
+								field: "{{ name . }}",
+								reason: "value is required",
+							}
+							if !all { return err }
+							errors = append(errors, err)
 						}
-						if !all { return err }
-						errors = append(errors, err)
 				{{ end }}
 			}
 		{{ end }}
@@ -63,6 +83,19 @@ func (m {{ (msgTyp .).Pointer }}) validate(all bool) error {
 		
 		return nil
 	{{ end -}}
+}
+
+func (m {{ (msgTyp .).Pointer }}) hasPaths(paths []string, name string) bool {
+	// if we don't have a path, allow everything
+	if len(paths) == 0 {
+		return true
+	}
+	for _, path := range paths {
+		if name == path || strings.HasPrefix(path, name+".") {
+			return true
+		}
+	}
+	return false
 }
 
 {{ if needs . "hostname" }}{{ template "hostname" . }}{{ end }}
