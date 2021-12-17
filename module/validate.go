@@ -1,6 +1,8 @@
 package module
 
 import (
+	"fmt"
+	"os"
 	"strings"
 
 	pgs "github.com/lyft/protoc-gen-star"
@@ -61,6 +63,7 @@ func (m *Module) Execute(targets map[string]pgs.File, pkgs map[string]pgs.Packag
 						m.AddGeneratorTemplateFile(java.JavaMultiFilePath(f, msg).String(), tpl, msg)
 					}
 				} else {
+					fmt.Fprintf(os.Stderr, "- Template %s \n", f.Name())
 					m.AddGeneratorTemplateFile(outPath, tpl, f)
 				}
 			}

@@ -9,7 +9,8 @@ import (
 	_ "github.com/saltosystems/protoc-gen-validate/tests/harness/cases/go"
 	cases "github.com/saltosystems/protoc-gen-validate/tests/harness/cases/go"
 	_ "github.com/saltosystems/protoc-gen-validate/tests/harness/cases/other_package/go"
-	_ "github.com/saltosystems/protoc-gen-validate/tests/harness/cases/yet_another_package/go"
+
+	// _ "github.com/saltosystems/protoc-gen-validate/tests/harness/cases/yet_another_package/go"
 	harness "github.com/saltosystems/protoc-gen-validate/tests/harness/go"
 	"google.golang.org/protobuf/proto"
 )
@@ -47,29 +48,46 @@ func main() {
 		// confirm that ignored messages don't have a validate method
 		switch {
 		case hasValidate:
+			log.Println("Validate - Ignored")
 			checkErr(fmt.Errorf("ignored message %T has Validate() method", msg))
 		case hasValidateAll:
+			log.Println("ValidateAll - Ignored")
 			checkErr(fmt.Errorf("ignored message %T has ValidateAll() method", msg))
 		case hasValidateWithPaths:
+			log.Println("ValidateWithPaths - Ignored")
 			checkErr(fmt.Errorf("ignored message %T has ValidateWithPaths() method", msg))
 		case hasValidateAllWithPaths:
+			log.Println("ValidateAllWithPaths - Ignored")
 			checkErr(fmt.Errorf("ignored message %T has ValidateAllWithPaths() method", msg))
+		default:
+			log.Println("Default - Ignored")
 		}
 	} else {
 		switch {
 		case !hasValidate:
+			log.Println("Validate")
 			checkErr(fmt.Errorf("non-ignored message %T is missing Validate()", msg))
 		case !hasValidateAll:
+			log.Println("ValidateAll")
 			checkErr(fmt.Errorf("non-ignored message %T is missing ValidateAll()", msg))
 		case !hasValidateWithPaths:
+			log.Println("ValidateWithPaths")
 			checkErr(fmt.Errorf("non-ignored message %T is missing ValidateWithPaths()", msg))
 		case !hasValidateAllWithPaths:
+			log.Println("ValidateAllWithPaths")
 			checkErr(fmt.Errorf("non-ignored message %T is missing ValidateAllWithPaths()", msg))
+		default:
+			log.Println("Default")
 		}
+		log.Printf("Paths: %s", tc.Paths)
 		err = vMsg.Validate()
 		multierr = vAllMsg.ValidateAll()
 		errWithPaths = vMsgWithPaths.ValidateWithPaths(tc.Paths)
 		multierrWithPaths = vAllMsgWithPaths.ValidateAllWithPaths(tc.Paths)
+		log.Printf("Validate err: %v \n", err)
+		log.Printf("ValidateAll err: %v \n", multierr)
+		log.Printf("ValidateWithPaths err: %v \n", errWithPaths)
+		log.Printf("ValidateAllWithPaths err: %v \n", multierrWithPaths)
 	}
 	checkValid(err, multierr, errWithPaths, multierrWithPaths)
 }
@@ -77,7 +95,7 @@ func main() {
 type hasAllErrors interface{ AllErrors() []error }
 type hasCause interface{ Cause() error }
 
-func checkValid(err, multierr error) {
+func checkValid(err, multierr, errWithPaths, multierrWithPaths error) {
 	if err == nil && multierr == nil {
 		resp(&harness.TestResult{Valid: true})
 		return

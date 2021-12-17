@@ -59,8 +59,10 @@ bin/harness:
 	cd tests && go build -o ../bin/harness ./harness/executor
 
 .PHONY: harness
-harness: testcases tests/harness/go/harness.pb.go tests/harness/go/main/go-harness tests/harness/cc/cc-harness bin/harness ## runs the test harness, validating a series of test cases in all supported languages
-	./bin/harness -go -cc
+# harness: testcases tests/harness/go/harness.pb.go tests/harness/go/main/go-harness tests/harness/cc/cc-harness bin/harness ## runs the test harness, validating a series of test cases in all supported languages
+	# ./bin/harness -go -cc
+harness: testcases tests/harness/go/harness.pb.go tests/harness/go/main/go-harness bin/harness ## runs the test harness, validating a series of test cases in all supported languages
+	./bin/harness -go
 
 .PHONY: bazel-tests
 bazel-tests: ## runs all tests with Bazel
@@ -87,21 +89,21 @@ testcases: bin/protoc-gen-go ## generate the test harness case protos
 		--plugin=protoc-gen-go=${GOPATH}/bin/protoc-gen-go \
 		--validate_out="module=${PACKAGE}/tests/harness/cases/other_package/go,lang=go:./go" \
 		./*.proto
-	cd tests/harness/cases/yet_another_package && \
-	protoc \
-		-I . \
-		-I ../../../.. \
-		--go_out="module=${PACKAGE}/tests/harness/cases/yet_another_package/go,${GO_IMPORT}:./go" \
-		--plugin=protoc-gen-go=${GOPATH}/bin/protoc-gen-go \
-		--validate_out="module=${PACKAGE}/tests/harness/cases/yet_another_package/go,lang=go:./go" \
-		./*.proto
+	# cd tests/harness/cases/yet_another_package && \
+	# protoc \
+	# 	-I . \
+	# 	-I ../../../.. \
+	# 	--go_out="module=${PACKAGE}/tests/harness/cases/yet_another_package/go,${GO_IMPORT}:./go" \
+	# 	--plugin=protoc-gen-go=${GOPATH}/bin/protoc-gen-go \
+	# 	--validate_out="module=${PACKAGE}/tests/harness/cases/yet_another_package/go,lang=go:./go" \
+	# 	./*.proto
 	cd tests/harness/cases && \
 	protoc \
 		-I . \
 		-I ../../.. \
-		--go_out="module=${PACKAGE}/tests/harness/cases/go,Mtests/harness/cases/other_package/embed.proto=${PACKAGE}/tests/harness/cases/other_package/go;other_package,Mtests/harness/cases/yet_another_package/embed.proto=${PACKAGE}/tests/harness/cases/yet_another_package/go,${GO_IMPORT}:./go" \
+		--go_out="module=${PACKAGE}/tests/harness/cases/go,Mtests/harness/cases/other_package/embed.proto=${PACKAGE}/tests/harness/cases/other_package/go;other_package,${GO_IMPORT}:./go" \
 		--plugin=protoc-gen-go=${GOPATH}/bin/protoc-gen-go \
-		--validate_out="module=${PACKAGE}/tests/harness/cases/go,lang=go,Mtests/harness/cases/other_package/embed.proto=${PACKAGE}/tests/harness/cases/other_package/go,Mtests/harness/cases/yet_another_package/embed.proto=${PACKAGE}/tests/harness/cases/yet_another_package/go:./go" \
+		--validate_out="module=${PACKAGE}/tests/harness/cases/go,lang=go,Mtests/harness/cases/other_package/embed.proto=${PACKAGE}/tests/harness/cases/other_package/go:./go" \
 		./*.proto
 
 validate/validate.pb.go: bin/protoc-gen-go validate/validate.proto
@@ -177,3 +179,14 @@ clean: ## clean up generated files
 	rm -rf \
 		python/dist \
 		python/*.egg-info
+
+.PHONY: custom-build
+custom-build:
+	go build -o bin
+	DEBUG=1 protoc \
+		-I . \
+		-I ${GOPATH}/src/gitlab.rnd.saltosystems.com/saltoapis/saltoapis \
+		-I ${GOPATH}/src/gitlab.rnd.saltosystems.com/saltoapis/saltoapis/third_party \
+		--plugin=protoc-gen-validate=${GOPATH}/src/github.com/saltosystems/protoc-gen-validate/bin/protoc-gen-validate \
+		--validate_out='lang=go:./output' \
+		test.proto

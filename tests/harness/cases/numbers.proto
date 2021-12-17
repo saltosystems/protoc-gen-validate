@@ -4,6 +4,8 @@ package tests.harness.cases;
 option go_package = "github.com/saltosystems/protoc-gen-validate/tests/harness/cases/go;cases";
 import "validate/validate.proto";
 
+message Test { int64 val = 1 [(validate.rules).int64.gt = 16]; }
+
 message FloatNone     { float val = 1; }
 message FloatConst    { float val = 1 [(validate.rules).float.const = 1.23]; }
 message FloatIn       { float val = 1 [(validate.rules).float = {in: [4.56, 7.89]}]; }
