@@ -1,8 +1,8 @@
 package shared
 
 import (
-	"github.com/envoyproxy/protoc-gen-validate/validate"
-	"github.com/lyft/protoc-gen-star"
+	pgs "github.com/lyft/protoc-gen-star"
+	"github.com/saltosystems/protoc-gen-validate/validate"
 )
 
 type WellKnown string
