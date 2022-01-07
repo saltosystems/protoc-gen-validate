@@ -34,7 +34,6 @@ const messageTpl = `
 					if err := v.Validate(); err != nil {
 						return {{ errCause . "err" "embedded message failed validation" }}
 					}
-<<<<<<< HEAD
 				}
 			} else if len(paths) > 0 {
 				if v, ok := interface{}({{ accessor . }}).(interface{ ValidateWithPaths([]string) error }); ok {
@@ -42,20 +41,6 @@ const messageTpl = `
 						return {{ errCause . "err" "embedded message failed validation" }}
 					}
 				}
-=======
-				case interface{ ValidateWithPaths(paths []string) error }:
-					if err := v.ValidateWithPaths(paths); err != nil {
-						errors = append(errors, {{ errCause . "err" "embedded message failed validation" }})
-					}
-				case interface{ ValidateAllWithPaths(paths []string) error }:
-					if err := v.ValidateAllWithPaths(paths); err != nil {
-						errors = append(errors, {{ errCause . "err" "embedded message failed validation" }})
-					}
-			}
-		} else if v, ok := interface{}({{ accessor . }}).(interface{ Validate() error }); ok {
-			if err := v.Validate(); err != nil {
-				return {{ errCause . "err" "embedded message failed validation" }}
->>>>>>> templates: add support for conditional validation using field paths.
 			}
 		}
 	{{ end }}

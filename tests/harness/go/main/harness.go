@@ -96,7 +96,7 @@ type hasAllErrors interface{ AllErrors() []error }
 type hasCause interface{ Cause() error }
 
 func checkValid(err, multierr, errWithPaths, multierrWithPaths error) {
-	if err == nil && multierr == nil {
+	if err == nil && multierr == nil && errWithPaths == nil || multierrWithPaths == nil {
 		resp(&harness.TestResult{Valid: true})
 		return
 	}
@@ -127,7 +127,38 @@ func checkValid(err, multierr, errWithPaths, multierrWithPaths error) {
 		return
 	}
 
-	resp(&harness.TestResult{Reasons: reasons})
+	var reasonsWithPaths []string
+	if errWithPaths != nil || multierrWithPaths != nil {
+		if (errWithPaths != nil) != (multierrWithPaths != nil) {
+			checkErr(fmt.Errorf("different verdict of ValidateWithPaths() [%v] vs. ValidateAllWithPaths() [%v]", errWithPaths, multierrWithPaths))
+			return
+		}
+
+		// Extract the message from "lazy" ValidateWithPaths(), for comparison with ValidateAllWithPaths()
+		rootCauseWithPaths := errWithPaths
+		for {
+			caused, ok := rootCauseWithPaths.(hasCause)
+			if !ok || caused.Cause() == nil {
+				break
+			}
+			rootCauseWithPaths = caused.Cause()
+		}
+
+		// Retrieve the messages from "extensive" ValidateAllWithPaths() and compare first one with the "lazy" message
+		mWithPaths, ok := multierrWithPaths.(hasAllErrors)
+		if !ok {
+			checkErr(fmt.Errorf("ValidateAllWithPaths() returned error without AllErrors() method: %#v", mWithPaths))
+			return
+		}
+
+		reasonsWithPaths = mergeReasons(nil, mWithPaths)
+		if rootCauseWithPaths.Error() != reasonsWithPaths[0] {
+			checkErr(fmt.Errorf("different first message, ValidateWithPaths()==%q, ValidateAllWithPaths()==%q", rootCauseWithPaths.Error(), reasonsWithPaths[0]))
+			return
+		}
+	}
+
+	resp(&harness.TestResult{Reasons: append(reasons, reasonsWithPaths...)})
 }
 
 func mergeReasons(reasons []string, multi hasAllErrors) []string {
