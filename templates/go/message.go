@@ -22,21 +22,24 @@ const messageTpl = `
 						}
 				}
 			} else if len(paths) > 0 {
-				v, ok := interface{}({{ accessor . }}).(interface{ ValidateAllWithPaths(paths) error }); ok {
-				if err := v.ValidateAllWithPaths(paths); err != nil {
-					errors = append(errors, {{ errCause . "err" "embedded message failed validation" }})
+				if v, ok := interface{}({{ accessor . }}).(interface{ ValidateAllWithPaths([]string) error }); ok {
+					if err := v.ValidateAllWithPaths(paths); err != nil {
+						errors = append(errors, {{ errCause . "err" "embedded message failed validation" }})
+					}
 				}
 			}
 		} else {
 			if len(paths) == 0 {
-				v, ok := interface{}({{ accessor . }}).(interface{ Validate() error }); ok {
-				if err := v.Validate(); err != nil {
-					return {{ errCause . "err" "embedded message failed validation" }}
+				if v, ok := interface{}({{ accessor . }}).(interface{ Validate() error }); ok {
+					if err := v.Validate(); err != nil {
+						return {{ errCause . "err" "embedded message failed validation" }}
+					}
 				}
 			} else if len(paths) > 0 {
-				v, ok := interface{}({{ accessor . }}).(interface{ ValidateWithPaths(paths) error }); ok {
-				if err := v.ValidateWithPaths(paths); err != nil {
-					return {{ errCause . "err" "embedded message failed validation" }}
+				if v, ok := interface{}({{ accessor . }}).(interface{ ValidateWithPaths([]string) error }); ok {
+					if err := v.ValidateWithPaths(paths); err != nil {
+						return {{ errCause . "err" "embedded message failed validation" }}
+					}
 				}
 			}
 		}
