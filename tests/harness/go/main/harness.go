@@ -77,17 +77,17 @@ func main() {
 			log.Println("ValidateAllWithPaths")
 			checkErr(fmt.Errorf("non-ignored message %T is missing ValidateAllWithPaths()", msg))
 		default:
-			log.Println("Default")
+			// log.Println("Default")
 		}
-		log.Printf("Paths: %s", tc.Paths)
+		// log.Printf("Paths: %s", tc.Paths)
 		err = vMsg.Validate()
 		multierr = vAllMsg.ValidateAll()
 		errWithPaths = vMsgWithPaths.ValidateWithPaths(tc.Paths)
 		multierrWithPaths = vAllMsgWithPaths.ValidateAllWithPaths(tc.Paths)
-		log.Printf("Validate err: %v \n", err)
-		log.Printf("ValidateAll err: %v \n", multierr)
-		log.Printf("ValidateWithPaths err: %v \n", errWithPaths)
-		log.Printf("ValidateAllWithPaths err: %v \n", multierrWithPaths)
+		// log.Printf("Validate err: %v \n", err)
+		// log.Printf("ValidateAll err: %v \n", multierr)
+		// log.Printf("ValidateWithPaths err: %v \n", errWithPaths)
+		// log.Printf("ValidateAllWithPaths err: %v \n", multierrWithPaths)
 	}
 	checkValid(err, multierr, errWithPaths, multierrWithPaths)
 }
@@ -181,6 +181,7 @@ func checkErr(err error) {
 	if err == nil {
 		return
 	}
+	log.Println(err)
 
 	resp(&harness.TestResult{
 		Error:   true,
