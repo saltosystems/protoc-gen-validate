@@ -59,12 +59,14 @@ func (m {{ (msgTyp .).Pointer }}) validate(all bool, paths []string) error {
 				{{ end }}
 				{{ if required . }}
 					default:
-						err := {{ errname .Message }}{
-							field: "{{ name . }}",
-							reason: "value is required",
+						if m.hasPaths(paths, "{{ name . }}") {
+							err := {{ errname .Message }}{
+								field: "{{ name . }}",
+								reason: "value is required",
+							}
+							if !all { return err }
+							errors = append(errors, err)
 						}
-						if !all { return err }
-						errors = append(errors, err)
 				{{ end }}
 			}
 		{{ end }}

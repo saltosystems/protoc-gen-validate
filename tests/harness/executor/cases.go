@@ -68,8 +68,9 @@ var testCases = []TestCase{
 
 	//TODO: fix this TEST
 	// {"message - required - invalid (oneof) - withPaths(noexist)", &cases.MessageRequiredOneof{}, invalidPath, 0},
-	// {"message - cross-package embed none - valid (empty) - withPaths(noexist)", &cases.MessageCrossPackage{Val: &other_package.Embed{}}, invalidPath, 1},
 	// {"oneof - require - invalid - withPaths(noexist)", &cases.OneOfRequired{}, invalidPath, 0},
+
+	{"message - cross-package embed none - valid (empty) - withPaths(noexist)", &cases.MessageCrossPackage{Val: &other_package.Embed{}}, invalidPath, 1},
 
 	// old errors
 	//fixed [message - field - invalid - withPaths(exist)] (go harness) expected invalid, got valid: []
@@ -2557,7 +2558,7 @@ var messageCases = []TestCase{
 	{"message - required - invalid - withPaths(exist)", &cases.MessageRequired{}, validPath, 1},
 	{"message - required - invalid - withPaths(noexist)", &cases.MessageRequired{}, invalidPath, 0},
 	{"message - required - invalid (oneof)", &cases.MessageRequiredOneof{}, nil, 1},
-	{"message - required - invalid (oneof) - withPaths(exist)", &cases.MessageRequiredOneof{}, validPath, 1},
+	{"message - required - invalid (oneof) - withPaths(exist)", &cases.MessageRequiredOneof{}, []string{"One"}, 1},
 	{"message - required - invalid (oneof) - withPaths(noexist)", &cases.MessageRequiredOneof{}, invalidPath, 0},
 
 	{"message - cross-package embed none - valid", &cases.MessageCrossPackage{Val: &other_package.Embed{Val: 1}}, nil, 0},
@@ -2566,9 +2567,9 @@ var messageCases = []TestCase{
 	{"message - cross-package embed none - valid (nil)", &cases.MessageCrossPackage{}, nil, 0},
 	{"message - cross-package embed none - valid (nil) - withPaths(exist)", &cases.MessageCrossPackage{}, validPath, 0},
 	{"message - cross-package embed none - valid (nil) - withPaths(noexist)", &cases.MessageCrossPackage{}, invalidPath, 0},
-	{"message - cross-package embed none - valid (empty)", &cases.MessageCrossPackage{Val: &other_package.Embed{}}, nil, 1},
-	{"message - cross-package embed none - valid (empty) - withPaths(exist)", &cases.MessageCrossPackage{Val: &other_package.Embed{}}, validPath, 1},
-	{"message - cross-package embed none - valid (empty) - withPaths(noexist)", &cases.MessageCrossPackage{Val: &other_package.Embed{}}, invalidPath, 1},
+	{"message - cross-package embed none - invalid (empty)", &cases.MessageCrossPackage{Val: &other_package.Embed{}}, nil, 1},
+	{"message - cross-package embed none - invalid (empty) - withPaths(exist)", &cases.MessageCrossPackage{Val: &other_package.Embed{}}, validPath, 1},
+	{"message - cross-package embed none - invalid (empty) - withPaths(noexist)", &cases.MessageCrossPackage{Val: &other_package.Embed{}}, invalidPath, 0},
 	{"message - cross-package embed none - invalid", &cases.MessageCrossPackage{Val: &other_package.Embed{Val: -1}}, nil, 1},
 	{"message - cross-package embed none - invalid - withPaths(exist)", &cases.MessageCrossPackage{Val: &other_package.Embed{Val: -1}}, validPath, 1},
 	{"message - cross-package embed none - invalid - withPaths(noexist)", &cases.MessageCrossPackage{Val: &other_package.Embed{Val: -1}}, invalidPath, 0},
@@ -2905,7 +2906,7 @@ var oneofCases = []TestCase{
 	{"oneof - required - valid - withPaths(exist)", &cases.OneOfRequired{O: &cases.OneOfRequired_X{X: ""}}, validPath, 0},
 	{"oneof - required - valid - withPaths(noexist)", &cases.OneOfRequired{O: &cases.OneOfRequired_X{X: ""}}, invalidPath, 0},
 	{"oneof - require - invalid", &cases.OneOfRequired{}, nil, 1},
-	{"oneof - require - invalid - withPaths(exist)", &cases.OneOfRequired{}, validPath, 1},
+	{"oneof - require - invalid - withPaths(exist)", &cases.OneOfRequired{}, []string{"O"}, 1},
 	{"oneof - require - invalid - withPaths(noexist)", &cases.OneOfRequired{}, invalidPath, 0},
 }
 
@@ -3473,17 +3474,17 @@ var kitchenSink = []TestCase{
 	{"kitchensink - valid (unset) - withPaths(exist)", &cases.KitchenSinkMessage{}, validPath, 0},
 	{"kitchensink - valid (unset) - withPaths(noexist)", &cases.KitchenSinkMessage{}, invalidPath, 0},
 	{"kitchensink - field - invalid", &cases.KitchenSinkMessage{Val: &cases.ComplexTestMsg{}}, nil, 7},
-	{"kitchensink - field - invalid - withPaths(exist)", &cases.KitchenSinkMessage{Val: &cases.ComplexTestMsg{}}, validPath, 7},
-	{"kitchensink - field - invalid - withPaths(noexist)", &cases.KitchenSinkMessage{Val: &cases.ComplexTestMsg{}}, invalidPath, 7},
+	{"kitchensink - field - invalid - withPaths(exist)", &cases.KitchenSinkMessage{Val: &cases.ComplexTestMsg{}}, []string{"O"}, 7},
+	{"kitchensink - field - invalid - withPaths(noexist)", &cases.KitchenSinkMessage{Val: &cases.ComplexTestMsg{}}, invalidPath, 0},
 	{"kitchensink - field - embedded - invalid", &cases.KitchenSinkMessage{Val: &cases.ComplexTestMsg{Another: &cases.ComplexTestMsg{}}}, nil, 14},
-	{"kitchensink - field - embedded - invalid - withPaths(exist)", &cases.KitchenSinkMessage{Val: &cases.ComplexTestMsg{Another: &cases.ComplexTestMsg{}}}, validPath, 14},
-	{"kitchensink - field - embedded - invalid - withPaths(noexist)", &cases.KitchenSinkMessage{Val: &cases.ComplexTestMsg{Another: &cases.ComplexTestMsg{}}}, invalidPath, 14},
+	{"kitchensink - field - embedded - invalid - withPaths(exist)", &cases.KitchenSinkMessage{Val: &cases.ComplexTestMsg{Another: &cases.ComplexTestMsg{}}}, []string{"O"}, 14},
+	{"kitchensink - field - embedded - invalid - withPaths(noexist)", &cases.KitchenSinkMessage{Val: &cases.ComplexTestMsg{Another: &cases.ComplexTestMsg{}}}, invalidPath, 0},
 	{"kitchensink - field - invalid (transitive)", &cases.KitchenSinkMessage{Val: &cases.ComplexTestMsg{Const: "abcd", BoolConst: true, Nested: &cases.ComplexTestMsg{}}}, nil, 14},
-	{"kitchensink - field - invalid (transitive) - withPaths(exist)", &cases.KitchenSinkMessage{Val: &cases.ComplexTestMsg{Const: "abcd", BoolConst: true, Nested: &cases.ComplexTestMsg{}}}, validPath, 14},
-	{"kitchensink - field - invalid (transitive) - withPaths(noexist)", &cases.KitchenSinkMessage{Val: &cases.ComplexTestMsg{Const: "abcd", BoolConst: true, Nested: &cases.ComplexTestMsg{}}}, invalidPath, 14},
+	{"kitchensink - field - invalid (transitive) - withPaths(exist)", &cases.KitchenSinkMessage{Val: &cases.ComplexTestMsg{Const: "abcd", BoolConst: true, Nested: &cases.ComplexTestMsg{}}}, []string{"O"}, 14},
+	{"kitchensink - field - invalid (transitive) - withPaths(noexist)", &cases.KitchenSinkMessage{Val: &cases.ComplexTestMsg{Const: "abcd", BoolConst: true, Nested: &cases.ComplexTestMsg{}}}, invalidPath, 0},
 	{"kitchensink - many - all non-message fields invalid", &cases.KitchenSinkMessage{Val: &cases.ComplexTestMsg{BoolConst: true, FloatVal: &wrapperspb.FloatValue{}, TsVal: &timestamppb.Timestamp{}, FloatConst: 8, AnyVal: &anypb.Any{TypeUrl: "asdf"}, RepTsVal: []*timestamppb.Timestamp{{Nanos: 1}}}}, nil, 13},
-	{"kitchensink - many - all non-message fields invalid - withPaths(exist)", &cases.KitchenSinkMessage{Val: &cases.ComplexTestMsg{BoolConst: true, FloatVal: &wrapperspb.FloatValue{}, TsVal: &timestamppb.Timestamp{}, FloatConst: 8, AnyVal: &anypb.Any{TypeUrl: "asdf"}, RepTsVal: []*timestamppb.Timestamp{{Nanos: 1}}}}, validPath, 13},
-	{"kitchensink - many - all non-message fields invalid - withPaths(noexist)", &cases.KitchenSinkMessage{Val: &cases.ComplexTestMsg{BoolConst: true, FloatVal: &wrapperspb.FloatValue{}, TsVal: &timestamppb.Timestamp{}, FloatConst: 8, AnyVal: &anypb.Any{TypeUrl: "asdf"}, RepTsVal: []*timestamppb.Timestamp{{Nanos: 1}}}}, invalidPath, 13},
+	{"kitchensink - many - all non-message fields invalid - withPaths(exist)", &cases.KitchenSinkMessage{Val: &cases.ComplexTestMsg{BoolConst: true, FloatVal: &wrapperspb.FloatValue{}, TsVal: &timestamppb.Timestamp{}, FloatConst: 8, AnyVal: &anypb.Any{TypeUrl: "asdf"}, RepTsVal: []*timestamppb.Timestamp{{Nanos: 1}}}}, []string{"O"}, 13},
+	{"kitchensink - many - all non-message fields invalid - withPaths(noexist)", &cases.KitchenSinkMessage{Val: &cases.ComplexTestMsg{BoolConst: true, FloatVal: &wrapperspb.FloatValue{}, TsVal: &timestamppb.Timestamp{}, FloatConst: 8, AnyVal: &anypb.Any{TypeUrl: "asdf"}, RepTsVal: []*timestamppb.Timestamp{{Nanos: 1}}}}, invalidPath, 0},
 }
 
 var nestedCases = []TestCase{
