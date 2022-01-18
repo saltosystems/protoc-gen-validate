@@ -1,11 +1,12 @@
 package module
 
 import (
-	"github.com/envoyproxy/protoc-gen-validate/templates"
-	"github.com/envoyproxy/protoc-gen-validate/templates/java"
+	"strings"
+
 	pgs "github.com/lyft/protoc-gen-star"
 	pgsgo "github.com/lyft/protoc-gen-star/lang/go"
-	"strings"
+	"github.com/saltosystems/protoc-gen-validate/templates"
+	"github.com/saltosystems/protoc-gen-validate/templates/java"
 )
 
 const (

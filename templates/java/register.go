@@ -8,10 +8,10 @@ import (
 	"text/template"
 	"unicode"
 
-	"github.com/envoyproxy/protoc-gen-validate/templates/shared"
 	"github.com/iancoleman/strcase"
 	pgs "github.com/lyft/protoc-gen-star"
 	pgsgo "github.com/lyft/protoc-gen-star/lang/go"
+	"github.com/saltosystems/protoc-gen-validate/templates/shared"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
