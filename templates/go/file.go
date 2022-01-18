@@ -40,8 +40,8 @@ var (
 	_ = anypb.Any{}
 	_ = sort.Sort
 
-	{{ range $pkg, $path := enumPackages (externalEnums .) }}
-		_ = {{ $pkg }}.{{ (index (externalEnums $) 0).Parent.Name }}_{{ (index (externalEnums $) 0).Name }}(0)
+	{{ range (externalEnums .) }}
+	_ = {{ pkg . }}.{{ name . }}(0)
 	{{ end }}
 )
 
