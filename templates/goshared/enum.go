@@ -6,7 +6,7 @@ const enumTpl = `
 		{{ template "in" . }}
 
 		{{ if $r.GetDefinedOnly }}
-			if _, ok := {{ (typ $f).Element }}_name[int32({{ accessor . }})]; !ok {
+			if _, ok := {{ (typ $f).Element }}_name[int32({{ accessor . }})]; m.hasPaths(paths, "{{ $f.Name }}") && !ok {
 				err := {{ err . "value must be one of the defined enum values" }}
 				if !all { return err }
 				errors = append(errors, err)
