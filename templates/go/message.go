@@ -22,6 +22,11 @@ const messageTpl = `
 						}
 				}
 			} else if len(paths) > 0 {
+				for i, path := range paths {
+					if strings.Index(path, "{{ $f.Name }}.") == 0 {
+						paths[i] = paths[i][len("{{ $f.Name }}."):]
+					}
+				}
 				if v, ok := interface{}({{ accessor . }}).(interface{ ValidateAllWithPaths([]string) error }); ok {
 					if err := v.ValidateAllWithPaths(paths); err != nil {
 						errors = append(errors, {{ errCause . "err" "embedded message failed validation" }})
@@ -36,6 +41,11 @@ const messageTpl = `
 					}
 				}
 			} else if len(paths) > 0 {
+				for i, path := range paths {
+					if strings.Index(path, "{{ $f.Name }}.") == 0 {
+						paths[i] = paths[i][len("{{ $f.Name }}."):]
+					}
+				}
 				if v, ok := interface{}({{ accessor . }}).(interface{ ValidateWithPaths([]string) error }); ok {
 					if err := v.ValidateWithPaths(paths); err != nil {
 						return {{ errCause . "err" "embedded message failed validation" }}
