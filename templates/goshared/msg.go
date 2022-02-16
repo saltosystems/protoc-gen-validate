@@ -77,6 +77,31 @@ func (m {{ (msgTyp .).Pointer }}) validate(all bool, paths []string) error {
 			}
 		{{ end }}
 
+		// validate custom rules
+		if all {
+			if len(paths) == 0 {
+				if cv, ok := interface{}(m).(interface{ CustomValidateAll() error }); ok {
+					err := cv.CustomValidateAll()
+					errors = append(errors, err)
+				}
+			} else if len(paths) > 0 {
+				if cv, ok := interface{}(m).(interface{ CustomValidateAllWithPaths([]string) error }); ok {
+					err := cv.CustomValidateAllWithPaths(paths)
+					errors = append(errors, err)
+				}
+			}
+		} else {
+			if len(paths) == 0 {
+				if cv, ok := interface{}(m).(interface{ CustomValidate() error }); ok {
+					return cv.CustomValidate()
+				}
+			} else if len(paths) > 0 {
+				if cv, ok := interface{}(m).(interface{ CustomValidateWithPaths([]string) error }); ok {
+					return cv.CustomValidateWithPaths(paths)
+				}
+			}
+		}
+
 		if len(errors) > 0 {
 			return {{ multierrname . }}(errors)
 		}
