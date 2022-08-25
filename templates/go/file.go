@@ -22,7 +22,7 @@ import (
 
 	{{ range $pkg, $path := enumPackages (externalEnums .) }}
 		{{ $pkg }} "{{ $path }}"
-	{{ end }}
+	{{- end }}
 )
 
 // ensure the imports are used
@@ -42,7 +42,7 @@ var (
 
 	{{ range (externalEnums .) }}
 	_ = {{ pkg . }}.{{ name . }}(0)
-	{{ end }}
+	{{- end }}
 )
 
 {{- if fileneeds . "uuid" }}
