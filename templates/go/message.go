@@ -29,7 +29,7 @@ const messageTpl = `
 						childPaths = append(childPaths,paths[i][len("{{ $f.Name }}."):])
 					}
 				}
-				if v, ok := interface{}({{ accessor . }}).(interface{ ValidateAllWithPaths([]string) error }); ok {
+				if v, ok := interface{}({{ accessor . }}).(interface{ ValidateAllWithPaths([]string) error }); ok && len(childPaths) > 0 {
 					if err := v.ValidateAllWithPaths(childPaths); err != nil {
 						errors = append(errors, {{ errCause . "err" "embedded message failed validation" }})
 					}
@@ -49,7 +49,7 @@ const messageTpl = `
 						childPaths = append(childPaths,paths[i][len("{{ $f.Name }}."):])
 					}
 				}
-				if v, ok := interface{}({{ accessor . }}).(interface{ ValidateWithPaths([]string) error }); ok {
+				if v, ok := interface{}({{ accessor . }}).(interface{ ValidateWithPaths([]string) error }); ok && len(childPaths) > 0 {
 					if err := v.ValidateWithPaths(childPaths); err != nil {
 						return {{ errCause . "err" "embedded message failed validation" }}
 					}
