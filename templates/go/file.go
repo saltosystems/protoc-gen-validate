@@ -17,6 +17,7 @@ import (
 	"strings"
 	"time"
 	"unicode/utf8"
+	"golang.org/x/exp/slices"
 
 	"google.golang.org/protobuf/types/known/anypb"
 
@@ -39,6 +40,7 @@ var (
 	_ = (*mail.Address)(nil)
 	_ = anypb.Any{}
 	_ = sort.Sort
+	_ = slices.Contains([]string {},"")
 
 	{{ range (externalEnums .) }}
 	_ = {{ pkg . }}.{{ name . }}(0)
