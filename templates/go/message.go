@@ -9,7 +9,7 @@ const messageTpl = `
 		// skipping validation for {{ $f.Name }}
 	{{ else }}
 		if all {
-			if len(paths) == 0 {
+			if len(paths) == 0 || slices.Contains(paths, "{{ $f.Name }}"){
 				switch v := interface{}({{ accessor . }}).(type) {
 					case interface{ ValidateAll() error }:
 						if err := v.ValidateAll(); err != nil {
@@ -36,7 +36,7 @@ const messageTpl = `
 				}
 			}
 		} else {
-			if len(paths) == 0 {
+			if len(paths) == 0 || slices.Contains(paths, "{{ $f.Name }}"){
 				if v, ok := interface{}({{ accessor . }}).(interface{ Validate() error }); ok {
 					if err := v.Validate(); err != nil {
 						return {{ errCause . "err" "embedded message failed validation" }}
